@@ -18,7 +18,7 @@ model User {
   id String @id @default(cuid())
   username String @unique
   password String
-  shareId String @unique @default(cuid())
+  shareId String? @unique
   content Content[]
   createdAt DateTime @default(now())
 }
