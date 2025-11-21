@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
 
-    const token = req.headers.get("Authorization")?.split(" ")[1];
+    const token = req.headers.get("authorization")?.split(" ")[1];
     const decoded = verifyToken(token);
     if(!decoded) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -52,7 +52,7 @@ export async function DELETE(req: NextRequest) {
     const { contentId } = body;
 
     if(!contentId) {
-        return NextResponse.json({ error: "ContentId is required" }), { status: 411 };
+        return NextResponse.json({ error: "ContentId is required" }, { status: 411 });
     }
 
     const content = await prisma.content.findUnique({
