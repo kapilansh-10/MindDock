@@ -1,4 +1,4 @@
-export function ContentCard({ item }: any) {
+export function ContentCard({ item}: any) {
   const icons: any = {
     youtube: "🎬",
     tweet: "🧵",

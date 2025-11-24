@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json(
-        { link: `${process.env.BASE_URL}/api/v1/brain/${shareId}`},
+        {shareId},
         { status: 200 }
     )
 
