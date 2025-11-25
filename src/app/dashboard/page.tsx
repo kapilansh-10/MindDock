@@ -93,91 +93,95 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white px-4 py-10">
-            <h1 className="text-4xl font-bold mb-6 flex items-center justify-center">Your MindDock</h1>
+    <div className="min-h-screen bg-black text-white px-4 py-10">
 
-            <button onClick={() => setOpen(true)}
-                className="bg-amber-200 hover:bg-amber-300 px-3 py-3 rounded-lg font-medium text-black mb-4"
+        {/* Header */}
+        <div className="flex justify-between items-center mb-10 max-w-4xl mx-auto">
+            <h1 className="text-4xl font-bold">Your MindDock</h1>
+
+            <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium text-white"
+            >
+                Logout
+            </button>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mb-8 max-w-4xl mx-auto">
+            <button
+                onClick={() => setOpen(true)}
+                className="bg-amber-300 hover:bg-amber-400 text-black font-medium px-5 py-3 rounded-lg shadow"
             >
                 + Add Content
             </button>
 
             <button
                 onClick={handleShare}
-                className="bg-blue-400 hover:bg-blue-500 px-3 py-3 rounded-lg font-medium text-black ml-3"
+                className="bg-blue-400 hover:bg-blue-500 text-black font-medium px-5 py-3 rounded-lg shadow"
             >
                 Share MindDock
             </button>
+        </div>
 
-            <div className="max-w-3xl mx-auto space-y-6">
-                { content.length === 0 ? (
-                    <p className="text-gray-400">No content yet. Add something!</p>
-                ) : (
-                    content.map((item: any) => (
-                        <ContentCard 
-                            key={item.id} 
-                            item={item}
-                            onDelete = { async (id: string) => {
-                                 
-                                const token = localStorage.getItem("token")
-                                
-                                await fetch("/api/v1/content", {
-                                    method: "DELETE",
-                                    headers: {
-                                        "Content-type": "application/json",
-                                        "Authorization": `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({ contentId: id })
-                                });
+        {/* Content Section */}
+        <div className="max-w-4xl mx-auto space-y-6">
+            {content.length === 0 ? (
+                <div className="text-gray-400 text-center mt-10">
+                    No content yet. Add something!
+                </div>
+            ) : (
+                content.map((item: any) => (
+                    <ContentCard 
+                        key={item.id} 
+                        item={item}
+                        onDelete={async (id: string) => {
+                            const token = localStorage.getItem("token");
 
-                                const updated = await fetch("/api/v1/content", {
-                                    headers: { Authorization: `Bearer ${token}` },
-                                }).then((r) => r.json());
+                            await fetch("/api/v1/content", {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-type": "application/json",
+                                    "Authorization": `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ contentId: id })
+                            });
 
-                                setContent(updated.content)
-                            }}
-                        />
-                    ))
-                )}
-            </div>
+                            const updated = await fetch("/api/v1/content", {
+                                headers: { Authorization: `Bearer ${token}` }
+                            }).then(r => r.json());
+
+                            setContent(updated.content);
+                        }}
+                    />
+                ))
+            )}
+        </div>
 
         <AddContentModal 
-                open={open}
-                setOpen={setOpen}
-                onCreate = { async (newContent) => {
+            open={open}
+            setOpen={setOpen}
+            onCreate={async (newContent) => {
+                const token = localStorage.getItem("token");
+                const res = await fetch("/api/v1/content", {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newContent)
+                });
 
-                    const token = localStorage.getItem("token")
+                if (res.ok) {
+                    setOpen(false);
+                    const updated = await fetch("/api/v1/content", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }).then(r => r.json());
 
-                    const res = await fetch("/api/v1/content", {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify(newContent)
-                    })
-
-                    if(res.ok){
-                        setOpen(false)
-
-                        const updated = await fetch("/api/v1/content", {
-                            headers: { Authorization: `Bearer ${token}`},
-                        }).then((r) => r.json());
-
-                        setContent(updated.content)
-                    }
-
-
-                    console.log("created")
-                }}
-            />
-
-            <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium text-white absolute top-6 right-6"
-            >
-                Logout
-            </button>
-        </div>
-    )
+                    setContent(updated.content);
+                }
+            }}
+        />
+    </div>
+    );
 }

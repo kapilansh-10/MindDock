@@ -26,7 +26,7 @@ export function ContentCard({ item, onDelete }: any) {
       {onDelete && (
         <button
           onClick={() => onDelete(item.id)}
-          className="text-red-400 hover:text-red-500 text-sm mt-2"
+          className="text-red-400 hover:text-red-500 text-sm mt-2 bg-red-500 text-white p-2 py-1 rounded-lg"
         >
           Delete
         </button>
