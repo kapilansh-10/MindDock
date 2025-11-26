@@ -7,7 +7,7 @@ const UserSchema = z.object({
     username: z
     .string()
     .min(3, "Username is too short")
-    .max(10, "Username is too long")
+    .max(15, "Username is too long")
     .regex(/^[A-Za-z0-9]+$/, "Username must only contain letters"),
 
     password: z
