@@ -161,7 +161,7 @@ export default function DashboardPage() {
         <AddContentModal 
             open={open}
             setOpen={setOpen}
-            onCreate={async (newContent) => {
+            onCreate={async (newContent: any) => {
                 const token = localStorage.getItem("token");
                 const res = await fetch("/api/v1/content", {
                     method: "POST",
