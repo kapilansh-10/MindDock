@@ -17,7 +17,7 @@ export default function SignUpPage() {
     const handleSignup = async () => {
 
 
-        const res = await fetch("/api/v1/signup", {
+        const res = await fetch("/api/v1/auth/signup", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
