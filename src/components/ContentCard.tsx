@@ -14,10 +14,19 @@ export function ContentCard({ item, onDelete }: any) {
         Open Link
       </a>
 
+      {item.aiSummary ? (
+        <p className="text-sm text-gray-300 mt-3">{item.aiSummary}</p>
+      ) : null}
+
       {/* Tags */}
-      <div className="flex gap-2 mt-2">
-        {item.tags.map((t: string) => (
+      <div className="flex flex-wrap gap-2 mt-2">
+        {(item.tags || []).map((t: string) => (
           <span key={t} className="text-xs bg-neutral-800 px-2 py-1 rounded">
+            {t}
+          </span>
+        ))}
+        {(item.aiTags || []).map((t: string) => (
+          <span key={`ai-${t}`} className="text-xs bg-purple-900/60 border border-purple-500/40 px-2 py-1 rounded">
             {t}
           </span>
         ))}

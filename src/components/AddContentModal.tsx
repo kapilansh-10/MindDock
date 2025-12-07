@@ -70,14 +70,21 @@ export function AddContentModal ({ open, setOpen, onCreate }: any) {
 
                     <button
                         className="px-4 py-2 bg-red-400 rounded-md"
-                        onClick={() => 
-                            onCreate({
+                        onClick={async () => {
+                            await Promise.resolve(onCreate({
                                 type,
                                 title,
                                 link,
-                                tags: tags.split(",").map((t) => t.trim())
-                            })
-                        }
+                                tags: tags
+                                    .split(",")
+                                    .map((t) => t.trim())
+                                    .filter(Boolean)
+                            }));
+                            setType("youtube");
+                            setTitle("");
+                            setLink("");
+                            setTags("");
+                        }}
                     >
                         Add
                     </button>

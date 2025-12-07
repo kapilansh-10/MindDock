@@ -12,6 +12,9 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [shareId, setShareId] = useState<string | null>(null)
+    const [question, setQuestion] = useState("");
+    const [answer, setAnswer] = useState("");
+    const [asking, setAsking] = useState(false);
 
 
     useEffect(() => {
@@ -31,7 +34,7 @@ export default function DashboardPage() {
             .then(async (res) => {
                 const data = await res.json();
                 setContent(data.content || []);
-                setShareId(data.user.shareId || null)
+                setShareId(data.user?.shareId || null)
                 setLoading(false)
             })
             .catch(() => {
@@ -92,6 +95,42 @@ export default function DashboardPage() {
         toast.success("Share link copied!")
     }
 
+    const handleAsk = async () => {
+        const trimmed = question.trim();
+        if (!trimmed) {
+            toast.error("Ask a question first");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if(!token) return;
+
+        setAsking(true);
+        setAnswer("");
+        try {
+            const res = await fetch("/api/v1/brain/ask", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ question: trimmed })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                const reason = data.details || data.error || "Could not get an answer";
+                toast.error(reason);
+            } else {
+                setAnswer(data.answer);
+            }
+        } catch (error) {
+            toast.error("Something went wrong");
+        } finally {
+            setAsking(false);
+        }
+    }
+
     return (
     <div className="min-h-screen bg-black text-white px-4 py-10">
 
@@ -122,6 +161,30 @@ export default function DashboardPage() {
             >
                 Share MindDock
             </button>
+        </div>
+
+        {/* Ask AI */}
+        <div className="max-w-4xl mx-auto mb-10 bg-neutral-900 border border-neutral-800 rounded-lg p-4 space-y-3">
+            <div className="flex flex-col md:flex-row gap-3">
+                <input
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Ask MindDock about your saved items"
+                    className="flex-1 px-3 py-2 rounded bg-neutral-800 outline-none"
+                />
+                <button
+                    onClick={handleAsk}
+                    disabled={asking}
+                    className="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded text-white disabled:opacity-60"
+                >
+                    {asking ? "Thinking..." : "Ask"}
+                </button>
+            </div>
+            {answer ? (
+                <div className="text-sm text-gray-200 bg-neutral-800/80 rounded p-3">
+                    {answer}
+                </div>
+            ) : null}
         </div>
 
         {/* Content Section */}
