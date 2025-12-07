@@ -30,6 +30,56 @@ async function postToAlchemyst<T>(path: string, payload: unknown): Promise<T> {
   }
 }
 
+export type ContentInsights = {
+  summary?: string;
+  tags?: string[];
+};
+
+export async function generateContentInsights(input: {
+  title: string;
+  link: string;
+  type: string;
+  tags?: string[];
+}): Promise<
+  | { status: "succeeded"; data: ContentInsights }
+  | { status: "skipped" }
+  | { status: "failed"; error: string }
+> {
+  if (!ALCHEMYST_API_KEY) {
+    return { status: "skipped" };
+  }
+
+  try {
+    const data = await postToAlchemyst<any>("/chat/generate", {
+      chat_history: [
+        {
+          role: "user",
+          content: `Summarize this content in 1-2 sentences and suggest 3 tags.\nTitle: ${input.title}\nLink: ${input.link}\nType: ${input.type}\nExisting tags: ${(input.tags ?? []).join(", ")}\n\nRespond ONLY with JSON: {"summary":"...","tags":["...","...","..."]}`,
+        },
+      ],
+    });
+
+    const text =
+      data?.result?.message ??
+      data?.message ??
+      data?.result?.response?.kwargs?.content ??
+      "";
+
+    try {
+      const parsed = JSON.parse(text);
+      return {
+        status: "succeeded",
+        data: { summary: parsed.summary, tags: parsed.tags },
+      };
+    } catch {
+      return { status: "succeeded", data: { summary: text, tags: [] } };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { status: "failed", error: message };
+  }
+}
+
 export async function askMindDock(input: { question: string; items: any[] }) {
   // Use whichever endpoint your account supports; chat/generate is used in their examples/docs tooling
   const context = input.items
